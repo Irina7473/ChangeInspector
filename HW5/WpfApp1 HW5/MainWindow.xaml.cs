@@ -51,11 +51,11 @@ namespace WpfApp1_HW5
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             Folders = new ObservableCollection<Folder>();
-            DriveInfo[] dis = DriveInfo.GetDrives();
-            FillFolders(Folders, dis.Length, 2, true, dis);
+            DriveInfo[] dis1 = DriveInfo.GetDrives();
+            FillFolders(Folders, dis1, dis1.Length, 2, true);
         }
 
-        private void FillFolders(ObservableCollection<Folder> items, int count, int depth, bool isRoot, DriveInfo[] dis)
+        private void FillFolders(ObservableCollection<Folder> items, DriveInfo[] dis, int count, int depth, bool isRoot)
         {
             string name="";
             for (int i = 0; i < count; i++)
@@ -63,43 +63,50 @@ namespace WpfApp1_HW5
                 if (dis[i].IsReady) name = dis[i].Name;
                 Folder folder = new Folder() { Name = name };
                 items.Add(folder);
-                if (i == count - 1 && depth > 1)
-                    FillFolders(folder.Items, count, depth - 1, false, dis);
-            }
-        }
-
-        
-
-        /*
-        public MainWindow()
-        {
-            InitializeComponent();
-        }
-
-        private void TreeViewItem_Expanded(object sender, RoutedEventArgs e)
-        {
-            TreeViewItem tvItem = (TreeViewItem)sender;
-            //MessageBox.Show("Узел " + tvItem.Header.ToString() + " раскрыт");
-
-            DriveInfo[] dis = DriveInfo.GetDrives();
-            try
-            {
-                foreach (DriveInfo di in dis)
+                
+                try
                 {
-                    if (di.IsReady) Disk1.Header=di.Name;
+                    if (i <= count - 1 && depth > 1)
+                    {                       
+                        string[] subDis = Directory.GetDirectories(dis[i].Name);
+                        string[] filesDis = Directory.GetFiles(dis[i].Name);
+                        FillSubFolders(folder.Items, subDis, subDis.Length, filesDis, filesDis.Length, 2, false);
+                    }
                 }
-            }
-            catch (IOException ex)
-            {
-                Console.WriteLine(ex.GetType().Name);
+                catch (UnauthorizedAccessException) { continue; }
             }
         }
 
-        private void TreeViewItem_Selected(object sender, RoutedEventArgs e)
-        {
-            TreeViewItem tvItem = (TreeViewItem)sender;
-            MessageBox.Show("Выбран узел: " + tvItem.Header.ToString());
-        }
-        */
+        private void FillSubFolders(ObservableCollection<Folder> items, string[] dis, int countdis, string[] files, int countfiles, int depth, bool isRoot)
+        {    
+            for (int i = 0; i < countdis; i++)
+            {
+                var name=System.IO.Path.GetFileName(dis[i]);   
+                Folder folder = new Folder() { Name = name };
+                items.Add(folder);
+
+                if (i <= countdis - 1 && depth > 1)
+                {
+                    try 
+                    {
+                        string[] subDis = Directory.GetDirectories(dis[i]);
+                        string[] filesDis = Directory.GetFiles(dis[i]);
+                        FillSubFolders(folder.Items, subDis, subDis.Length, filesDis, filesDis.Length, 2, false);
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        //MessageBox.Show(e.Message);
+                        continue;
+                    }                    
+                }                
+            }
+            
+                for (int i = 0; i < countfiles; i++)
+            {
+                var name = System.IO.Path.GetFileName(files[i]);
+                Folder folder = new Folder() { Name = name };
+                items.Add(folder);                
+            }
+        }      
     }
 }

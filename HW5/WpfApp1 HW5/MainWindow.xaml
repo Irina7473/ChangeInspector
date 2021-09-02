@@ -6,9 +6,10 @@
         xmlns:local="clr-namespace:WpfApp1_HW5"
         xmlns:col="clr-namespace:ClassLibrary;assembly=ClassLibrary"
         mc:Ignorable="d"        
-        Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded">
+        Title="Каталог файлов" Height="450" Width="800" Loaded="Window_Loaded">
 
     <Grid>
+        <TextBlock Text="Каталог файлов" />
         <TreeView ItemsSource="{Binding Folders}">
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate DataType="{x:Type col:Folder}" ItemsSource="{Binding Items}">
